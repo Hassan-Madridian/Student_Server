@@ -1,0 +1,47 @@
+const http = require('http');
+const url = require('url');
+
+// Sample student data
+const students = {
+    '11111': { StudentID: '11111', StudentName: 'Bruce Lee', Score: 84 },
+    '22222': { StudentID: '22222', StudentName: 'Jackie Chen', Score: 93 },
+    '33333': { StudentID: '33333', StudentName: 'Jet Li', Score: 88 }
+};
+
+// Create an HTTP server
+const server = http.createServer((req, res) => {
+    const parsedUrl = url.parse(req.url, true);
+    const pathname = parsedUrl.pathname;
+    const query = parsedUrl.query;
+
+    if (pathname === '/api/score' && query.student_id) {
+        const student = students[query.student_id];
+        if (student) {
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(student));
+        } else {
+            res.writeHead(404, { 'Content-Type': 'text/plain' });
+            res.end('Student not found');
+        }
+    } else if (pathname === '/api/currenttime') {
+        const now = new Date();
+        const currentTime = {
+            year: now.getFullYear(),
+            month: String(now.getMonth() + 1).padStart(2, '0'), // Months are 0-based
+            date: String(now.getDate()).padStart(2, '0'),
+            hour: String(now.getHours()).padStart(2, '0'),
+            minute: String(now.getMinutes()).padStart(2, '0')
+        };
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(currentTime));
+    } else {
+        res.writeHead(404, { 'Content-Type': 'text/plain' });
+        res.end('Invalid endpoint or missing parameters');
+    }
+});
+
+// Server listens on port 8000
+const port = 8000;
+server.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}/`);
+});
